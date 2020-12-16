@@ -3,17 +3,20 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
+* {
+  box-sizing: border-box;
+}
+
 .container {
   border: 2px solid rgba(0, 0, 0, .125);
   border-radius: .25rem;
-  
   /* Let the inner table scroll within */
   overflow-x: auto;
 }
 
 .timeline-scale {
   border-collapse: collapse;
-  border-bottom: 2px solid rgba(0, 0, 0, .125);
+  border-bottom: 1px solid rgba(0, 0, 0, .125);
 }
 
 .timeline-wrapper {
@@ -38,6 +41,7 @@ body {
   text-align: left;
   color: #ffffff;
   border-radius: 5px;
+  padding: 10px;
 }
 
 .timeline-events {
@@ -49,6 +53,7 @@ body {
   Small hack to give the table headers some room instead 
   of all the headings getting stuffed into the parent width
 */
+
 .spacer {
   width: 100px;
   display: block;

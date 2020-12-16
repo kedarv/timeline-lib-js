@@ -6,132 +6,120 @@ import 'normalize.css';
 import './index.css';
 import moment from 'moment';
 import SortedSet from 'collections/sorted-set';
+
+function TimelineHeading(props) {
+  return (
+    <th className="timeline-day-heading">
+      {props.heading.format("YYYY-MM-DD")}
+      <div className="spacer"></div>
+    </th>
+  )
+}
+
 class App extends React.Component {
-
-  computeBoundaries = () => {
-    // TODO: convert everything to moments
-
+  computeTimeline = () => {
+    // Convert the input start and end properties to moment objects
     let parsedItems = timelineItems.map(item => {
       return {
-        'id': item.id,
+        ...item,
         'start': moment(item.start),
         'end': moment(item.end),
-        'name': item.name,
       }
     })
+
+    // Sort the array of items by start date
     parsedItems.sort((a, b) => a.start.valueOf() - b.start.valueOf());
 
-    const min = timelineItems.reduce(function (prev, curr) {
-      return Date.parse(prev.start) < Date.parse(curr.start) ? prev : curr;
-    });
+    // Calculate bounds of the timeline
+    // minimum is guaranteed to be the first items' start
+    const minDate = parsedItems[0].start;
 
-    const max = timelineItems.reduce(function (prev, curr) {
-      return Date.parse(prev.end) > Date.parse(curr.end) ? prev : curr;
-    });
+    // maximum (ie. the end date) could occur anywhere, so let's search
+    const maxDate = parsedItems.reduce(function (prev, curr) {
+      return prev.end.valueOf() > curr.end.valueOf() ? prev : curr;
+    }).end;
 
-    const minDate = moment(min.start);
-    const maxDate = moment(max.end);
-    const days = maxDate.diff(minDate, 'days')
-
+    // Initialize stackingData with range of days to hold lane positioning
+    // Initialize date range as array for presentation
     let stackingData = {};
-    for (let i = 0; i <= days; i++) {
-      stackingData[minDate.clone().add(i, 'days')] = {};
+    let headingDates = [];
+    for (let i = 0; i <= maxDate.diff(minDate, 'days'); i++) {
+      const day = minDate.clone().add(i, 'days');
+      stackingData[day] = {};
+      headingDates.push(day);
     }
 
+    // Go through each event and populate stackingData 
     parsedItems.forEach(element => {
-      const start = element.start;
-      const end = element.end;
-      let s = new SortedSet();
-      // go from start to end by adding one day
-      for (let j = 0; j <= end.diff(start, 'days'); j++) {
-        const d = start.clone().add(j, 'days');
-        for (let [key, value] of Object.entries(stackingData[d])) {
-          s.add(key);
-        }
-        // if (itemsLength === 0) {
-        //   // console.log("nothing found in " + d.format("YYYY-MM-DD"))
-        //   stackingData[d][0] = element.id;
-        // } else {
-        //   for (let k = 0; k < itemsLength + 1; k++) {
-        //     if (!(k in stackingData[d])) {
-        //       stackingData[d][k] = element.id;
-        //       break;
-        //     }
-        //   }
-        // }
-        // console.log(d);
-        // console.log(stackingData[d]);
-      }
+      let occupiedLanes = new SortedSet();
+      const duration = element.end.diff(element.start, 'days');
 
-      let idx = 0;
-      console.log(s.toArray());
-      const itr = s.length + 1;
-      if (itr !== 0) {
-        for (let k = 0; k < itr; k++) {
-          const popped = s.shift();
-          console.log("popped:" + popped)
-          if (k > itr || k !== parseInt(popped)) {
-            idx = k;
-            break;
-          }
+      // Go through existing stackingData and push all occupied lanes
+      // in entire range of duration
+      for (let j = 0; j <= duration; j++) {
+        const d = element.start.clone().add(j, 'days');
+        for (let [key] of Object.entries(stackingData[d])) {
+          occupiedLanes.push(Number(key));
         }
       }
 
-      console.log("computed idx as: " + idx);
-      for (let j = 0; j <= end.diff(start, 'days'); j++) {
-        const d = start.clone().add(j, 'days');
-        stackingData[d][idx] = parseInt(element.id);
-        console.log("added " + idx + " to " + d.format("YYYY-MM-DD"))
-        
+      // Find the lowest unused lane index
+      let computedLaneIndex = 0;
+      for (let k = 0; k < occupiedLanes.length + 1; k++) {
+        // If the index is not occupied then claim it
+        if (occupiedLanes.get(k) === undefined || k !== occupiedLanes.get(k)) {
+          computedLaneIndex = k;
+          break;
+        }
+      }
+
+      // Fill stackingData for duration with computed stack index
+      for (let j = 0; j <= duration; j++) {
+        const d = element.start.clone().add(j, 'days');
+        stackingData[d][computedLaneIndex] = element.id;
       };
-      console.log(stackingData);
     });
 
     return {
-      days,
+      parsedItems,
+      headingDates,
       minDate,
-      maxDate,
       stackingData
     };
   }
 
   render() {
-    const { days, minDate, maxDate, stackingData } = this.computeBoundaries()
-    let items = [];
-
-    for (let i = 0; i < days; i++) {
-      items.push(minDate.clone().add(i, 'days'));
-    }
+    const { parsedItems, headingDates, minDate, stackingData } = this.computeTimeline()
 
     return (
       <div>
-        <div class="container">
-          <div class="timeline-wrapper">
-            <table class="timeline-scale">
+        <div className="container">
+          <div className="timeline-wrapper">
+            <table className="timeline-scale">
               <thead>
                 <tr>
-                  {items.map((item, index) => {
-                    return (<th class="timeline-day-heading">{item.format("YYYY-MM-DD")}<div class="spacer"></div></th>)
+                  {headingDates.map(heading => {
+                    return <TimelineHeading heading={heading} key={heading.valueOf()} />
                   })}
                 </tr>
               </thead>
             </table>
 
-            <div class="timeline-body">
-              <div class="timeline-events">
-                {timelineItems.map((item, index) => {
+            <div className="timeline-body">
+              <div className="timeline-events">
+                {parsedItems.map(item => {
                   return (
                     <TimelineItem
                       {...item}
-                      offset={moment(item.start).diff(minDate, 'days')}
-                      top={Object.keys(stackingData[moment(item.start)]).find(key => stackingData[moment(item.start)][key] === item.id)}></TimelineItem>
+                      key={item.id}
+                      offset={item.start.diff(minDate, 'days')}
+                      top={Object.keys(stackingData[item.start]).find(key => stackingData[item.start][key] === item.id)}
+                    />
                   )
                 })}
-
               </div>
             </div>
           </div>
-
         </div>
       </div>);
   }
