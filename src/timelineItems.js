@@ -6,12 +6,6 @@ const timelineItems = [
     name: "FIRST"
   },
   {
-    id: 200,
-    start: "2018-01-01",
-    end: "2018-01-04",
-    name:"custom",
-  },
-  {
     id: 2,
     start: "2018-01-02",
     end: "2018-01-08",
