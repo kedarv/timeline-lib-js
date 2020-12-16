@@ -11,6 +11,18 @@ body {
   overflow-x: auto;
 }
 
+.timeline-scale {
+  border-collapse: collapse;
+  border-bottom: 2px solid rgba(0, 0, 0, .125);
+}
+
+.timeline-wrapper {
+  position: relative;
+  display: inline-block;
+  width: auto;
+  height: 200px;
+}
+
 .timeline-day-heading {
   padding: 8px;
   color: rgb(4, 4, 4);
@@ -24,21 +36,8 @@ body {
   height: auto;
   vertical-align: middle;
   text-align: left;
-  background-color: #484eff;
   color: #ffffff;
   border-radius: 5px;
-}
-
-.timeline-scale {
-  border-collapse: collapse;
-  border-bottom: 2px solid rgba(0, 0, 0, .125);
-}
-
-.timeline-wrapper {
-  position: relative;
-  display: inline-block;
-  width: auto;
-  height: 200px;
 }
 
 .timeline-events {
