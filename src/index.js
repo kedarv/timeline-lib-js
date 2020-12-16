@@ -11,7 +11,7 @@ class App extends React.Component {
   computeBoundaries = () => {
     // TODO: convert everything to moments
 
-    const parsedItems = timelineItems.map(item => {
+    let parsedItems = timelineItems.map(item => {
       return {
         'id': item.id,
         'start': moment(item.start),
@@ -19,7 +19,7 @@ class App extends React.Component {
         'name': item.name,
       }
     })
-    parsedItems.sort((a, b) => b.start.isBefore(a.start));
+    parsedItems.sort((a, b) => a.start.valueOf() - b.start.valueOf());
 
     const min = timelineItems.reduce(function (prev, curr) {
       return Date.parse(prev.start) < Date.parse(curr.start) ? prev : curr;
@@ -120,7 +120,6 @@ class App extends React.Component {
             <div class="timeline-body">
               <div class="timeline-events">
                 {timelineItems.map((item, index) => {
-                  console.log(Object.keys(stackingData[moment(item.start)]).find(key => stackingData[moment(item.start)][key] === item.id))
                   return (
                     <TimelineItem
                       {...item}
