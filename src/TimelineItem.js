@@ -5,7 +5,7 @@ import moment from 'moment';
 function TimelineItem(props) {
     const start = moment(props.start);
     const end = moment(props.end);
-    const diff = end.diff(start, 'days');
+    const diff = end.diff(start, 'days') ? end.diff(start, 'days') : 1;
     // console.log(props.top)
     let top = props.top > -1 ? props.top : 0;
     const randomColor = Math.floor(Math.random()*16777215).toString(16);

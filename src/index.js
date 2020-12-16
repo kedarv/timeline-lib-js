@@ -34,7 +34,7 @@ class App extends React.Component {
     const days = maxDate.diff(minDate, 'days')
 
     let stackingData = {};
-    for (let i = 0; i < days; i++) {
+    for (let i = 0; i <= days; i++) {
       stackingData[minDate.clone().add(i, 'days')] = {};
     }
 
@@ -43,7 +43,7 @@ class App extends React.Component {
       const end = element.end;
       let s = new SortedSet();
       // go from start to end by adding one day
-      for (let j = 0; j < end.diff(start, 'days'); j++) {
+      for (let j = 0; j <= end.diff(start, 'days'); j++) {
         const d = start.clone().add(j, 'days');
         for (let [key, value] of Object.entries(stackingData[d])) {
           s.add(key);
@@ -70,9 +70,6 @@ class App extends React.Component {
         for (let k = 0; k < itr; k++) {
           const popped = s.shift();
           console.log("popped:" + popped)
-          if(itr == 3) {
-            console.log("woo")
-          }
           if (k > itr || k !== parseInt(popped)) {
             idx = k;
             break;
@@ -81,12 +78,13 @@ class App extends React.Component {
       }
 
       console.log("computed idx as: " + idx);
-      for (let j = 0; j < end.diff(start, 'days'); j++) {
+      for (let j = 0; j <= end.diff(start, 'days'); j++) {
         const d = start.clone().add(j, 'days');
         stackingData[d][idx] = parseInt(element.id);
         console.log("added " + idx + " to " + d.format("YYYY-MM-DD"))
-        // console.log(stackingData);
+        
       };
+      console.log(stackingData);
     });
 
     return {
@@ -122,6 +120,7 @@ class App extends React.Component {
             <div class="timeline-body">
               <div class="timeline-events">
                 {timelineItems.map((item, index) => {
+                  console.log(Object.keys(stackingData[moment(item.start)]).find(key => stackingData[moment(item.start)][key] === item.id))
                   return (
                     <TimelineItem
                       {...item}
