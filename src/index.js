@@ -17,8 +17,17 @@ function TimelineHeading(props) {
 }
 
 class App extends React.Component {
-  computeTimeline = () => {
-    // Convert the input start and end properties to moment objects
+  constructor(props) {
+    super(props);
+    this.state = { parsedItems: null };
+  }
+
+  componentDidMount() {
+    this.setState({ parsedItems: this.parseItems() });
+  }
+
+  // Convert the input timestamps to moment objects and sort by start
+  parseItems = () => {
     let parsedItems = timelineItems.map(item => {
       return {
         ...item,
@@ -29,15 +38,27 @@ class App extends React.Component {
 
     // Sort the array of items by start date
     parsedItems.sort((a, b) => a.start.valueOf() - b.start.valueOf());
+    return parsedItems;
+  }
 
-    // Calculate bounds of the timeline
+  // Calculate bounds of the timeline
+  getGlobalBounds = () => {
     // minimum is guaranteed to be the first items' start
-    const minDate = parsedItems[0].start;
+    const minDate = this.state.parsedItems[0].start;
 
     // maximum (ie. the end date) could occur anywhere, so let's search
-    const maxDate = parsedItems.reduce(function (prev, curr) {
+    const maxDate = this.state.parsedItems.reduce(function (prev, curr) {
       return prev.end.valueOf() > curr.end.valueOf() ? prev : curr;
     }).end;
+
+    return {
+      minDate,
+      maxDate,
+    }
+  }
+
+  computeTimeline = () => {
+    const { minDate, maxDate } = this.getGlobalBounds();
 
     // Initialize stackingData with range of days to hold lane positioning
     // Initialize date range as array for presentation
@@ -50,7 +71,7 @@ class App extends React.Component {
     }
 
     // Go through each event and populate stackingData 
-    parsedItems.forEach(element => {
+    this.state.parsedItems.forEach(element => {
       let occupiedLanes = new SortedSet();
       const duration = element.end.diff(element.start, 'days');
 
@@ -81,21 +102,35 @@ class App extends React.Component {
     });
 
     return {
-      parsedItems,
       headingDates,
-      minDate,
       stackingData
     };
   }
 
+  handleUpdateItemTime = (id, start, end) => {
+    // console.log(id, start, end);
+    // var someProperty = { ...this.state.parsedItems }
+    // someProperty[] = true;
+    // this.setState({ someProperty })
+    // this.setState
+  }
+
   render() {
-    const { parsedItems, headingDates, minDate, stackingData } = this.computeTimeline()
+    if (this.state.parsedItems === null) {
+      return null;
+    }
+    const { headingDates, stackingData } = this.computeTimeline();
+
+    // Compute height for timeline
+    const maxStacked = Object.keys(Object.values(stackingData).reduce(function (prev, curr) {
+      return Object.keys(prev).length > Object.keys(curr).length ? prev : curr;
+    })).length;
 
     return (
       <div>
-        <div className="container">
-          <div className="timeline-wrapper">
-            <table className="timeline-scale">
+        <div className="overflow-container">
+          <div className="wrapper" style={{ "height": (maxStacked * 38) + 35 }}>
+            <table className="headings">
               <thead>
                 <tr>
                   {headingDates.map(heading => {
@@ -104,20 +139,18 @@ class App extends React.Component {
                 </tr>
               </thead>
             </table>
-
-            <div className="timeline-body">
-              <div className="timeline-events">
-                {parsedItems.map(item => {
-                  return (
-                    <TimelineItem
-                      {...item}
-                      key={item.id}
-                      offset={item.start.diff(minDate, 'days')}
-                      top={Object.keys(stackingData[item.start]).find(key => stackingData[item.start][key] === item.id)}
-                    />
-                  )
-                })}
-              </div>
+            <div className="timeline-items">
+              {this.state.parsedItems.map(item => {
+                return (
+                  <TimelineItem
+                    {...item}
+                    key={item.id}
+                    offset={item.start.diff(headingDates[0], 'days')}
+                    top={Object.keys(stackingData[item.start]).find(key => stackingData[item.start][key] === item.id)}
+                    updateItemTime={this.handleUpdateItemTime}
+                  />
+                )
+              })}
             </div>
           </div>
         </div>

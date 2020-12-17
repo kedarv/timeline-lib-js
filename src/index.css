@@ -7,45 +7,40 @@ body {
   box-sizing: border-box;
 }
 
-.container {
+.overflow-container {
   border: 2px solid rgba(0, 0, 0, .125);
-  border-radius: .25rem;
+  border-radius: 5px;
   /* Let the inner table scroll within */
   overflow-x: auto;
 }
 
-.timeline-scale {
+.headings {
   border-collapse: collapse;
   border-bottom: 1px solid rgba(0, 0, 0, .125);
 }
 
-.timeline-wrapper {
+.wrapper {
   position: relative;
   display: inline-block;
   width: auto;
-  height: 200px;
 }
 
 .timeline-day-heading {
   padding: 8px;
   color: rgb(4, 4, 4);
   text-align: center;
-  border-right: 1px solid #ddd;
+  border-right: 1px solid rgba(0, 0, 0, .125);
 }
 
 .timeline-item {
   position: absolute;
   display: block;
-  height: auto;
-  vertical-align: middle;
-  text-align: left;
   color: #ffffff;
   border-radius: 5px;
   padding: 10px;
 }
 
-.timeline-events {
-  height: 200px;
+.timeline-items {
   position: absolute;
 }
 
