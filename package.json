@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@tippyjs/react": "^4.2.0",
     "collections": "^5.1.12",
     "moment": "^2.29.1",
     "normalize.css": "^8.0.1",
