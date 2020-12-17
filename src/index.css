@@ -70,3 +70,24 @@ input {
   width: 100px;
   display: block;
 }
+
+/* resizing */
+.resize-right {
+  right: -5px;
+  bottom: 50%;
+  cursor: ew-resize;
+  transform: translate(0px, 5px);
+  width: 10px;
+  height: 10px;
+  position: absolute;
+}
+
+.resize-left {
+  left: -5px;
+  bottom: 50%;
+  cursor: ew-resize;
+  transform: translate(0px, 5px);
+  width: 10px;
+  height: 10px;
+  position: absolute;
+}
