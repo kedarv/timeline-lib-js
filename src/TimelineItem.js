@@ -1,59 +1,62 @@
 import React, { useState } from 'react';
 import './index.css';
 
-function TimelineItemEditor(props) {
-  const [eventName, setEventName] = useState(props.name);
+const colorArray = [
+  '#001f3f', '#0074D9', '#39CCCC', '#3D9970', '#2ECC40', '#FF851B',
+  '#FF4136', '#85144b', '#F012BE', '#B10DC9', '#AAAAAA',
+];
+
+function TimelineItemEditor({ name, submit }) {
+  const [eventName, setEventName] = useState(name);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    props.submit(eventName);
+    submit(eventName);
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <input
+        autoFocus
         type="text"
         value={eventName}
         onChange={(e) => setEventName(e.target.value)}
+        onBlur={() => submit(eventName)}
       />
     </form>
   );
 }
 
-function TimelineItem(props) {
-  const diff = props.end.diff(props.start, 'days') + 1;
+function TimelineItem({
+  name, end, start, id, offset, top, handleUpdateItem,
+}) {
+  const diff = end.diff(start, 'days') + 1;
   const [isEditMode, setIsEditMode] = useState(false);
 
-  const propogateUpdates = (name = props.name, start = props.start, end = props.end) => {
+  const propogateUpdates = (updateName = name, updateStart = start, updateEnd = end) => {
     setIsEditMode(false);
-    props.handleUpdateItem(
-      props.id,
-      name,
-      start,
-      end,
+    handleUpdateItem(
+      id,
+      updateName,
+      updateStart,
+      updateEnd,
     );
   };
-  console.log(props.id);
+
   return (
     <div
       className="timeline-item"
       style={{
-        left: props.offset * 117,
+        left: offset * 117,
         width: diff * 117,
-        top: props.top * 38,
-        backgroundColor: colorArray[props.id % 50],
+        top: top * 38,
+        backgroundColor: colorArray[id % colorArray.length],
       }}
     >
-      {isEditMode ? <TimelineItemEditor name={props.name} submit={propogateUpdates} />
-        : <span onClick={() => setIsEditMode(!isEditMode)}>{props.name}</span>}
+      {isEditMode ? <TimelineItemEditor name={name} submit={propogateUpdates} />
+        : <span onClick={() => setIsEditMode(!isEditMode)}>{name}</span>}
     </div>
   );
 }
-
-const colorArray = [
-  'aqua', 'black', 'blue', 'fuchsia', 'gray', 'green',
-  'lime', 'maroon', 'navy', 'olive', 'orange', 'purple', 'red',
-  'silver', 'teal', 'yellow',
-];
 
 export default TimelineItem;

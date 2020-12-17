@@ -1,19 +1,19 @@
 import React from 'react';
 import { render } from 'react-dom';
-import timelineItems from './timelineItems';
-import TimelineItem from './TimelineItem';
 import 'normalize.css';
-import './index.css';
 import moment from 'moment';
 import SortedSet from 'collections/sorted-set';
+import timelineItems from './timelineItems';
+import TimelineItem from './TimelineItem';
+import './index.css';
 
-function TimelineHeading(props) {
+function TimelineHeading({ heading }) {
   return (
     <th className="timeline-day-heading">
-      {props.heading.format("YYYY-MM-DD")}
-      <div className="spacer"></div>
+      {heading.format('YYYY-MM-DD')}
+      <div className="spacer" />
     </th>
-  )
+  );
 }
 
 class App extends React.Component {
@@ -28,13 +28,11 @@ class App extends React.Component {
 
   // Convert the input timestamps to moment objects and sort by start
   parseItems = () => {
-    let parsedItems = timelineItems.map(item => {
-      return {
-        ...item,
-        'start': moment(item.start),
-        'end': moment(item.end),
-      }
-    })
+    const parsedItems = timelineItems.map((item) => ({
+      ...item,
+      start: moment(item.start),
+      end: moment(item.end),
+    }));
 
     // Sort the array of items by start date
     parsedItems.sort((a, b) => a.start.valueOf() - b.start.valueOf());
@@ -47,14 +45,14 @@ class App extends React.Component {
     const minDate = this.state.parsedItems[0].start;
 
     // maximum (ie. the end date) could occur anywhere, so let's search
-    const maxDate = this.state.parsedItems.reduce(function (prev, curr) {
-      return prev.end.valueOf() > curr.end.valueOf() ? prev : curr;
-    }).end;
+    const maxDate = this.state.parsedItems.reduce(
+      (prev, curr) => (prev.end.valueOf() > curr.end.valueOf() ? prev : curr),
+    ).end;
 
     return {
       minDate,
       maxDate,
-    }
+    };
   }
 
   computeTimeline = () => {
@@ -62,24 +60,24 @@ class App extends React.Component {
 
     // Initialize stackingData with range of days to hold lane positioning
     // Initialize date range as array for presentation
-    let stackingData = {};
-    let headingDates = [];
+    const stackingData = {};
+    const headingDates = [];
     for (let i = 0; i <= maxDate.diff(minDate, 'days'); i++) {
       const day = minDate.clone().add(i, 'days');
       stackingData[day] = {};
       headingDates.push(day);
     }
 
-    // Go through each event and populate stackingData 
-    this.state.parsedItems.forEach(element => {
-      let occupiedLanes = new SortedSet();
+    // Go through each event and populate stackingData
+    this.state.parsedItems.forEach((element) => {
+      const occupiedLanes = new SortedSet();
       const duration = element.end.diff(element.start, 'days');
 
       // Go through existing stackingData and push all occupied lanes
       // in entire range of duration
       for (let j = 0; j <= duration; j++) {
         const d = element.start.clone().add(j, 'days');
-        for (let [key] of Object.entries(stackingData[d])) {
+        for (const [key] of Object.entries(stackingData[d])) {
           occupiedLanes.push(Number(key));
         }
       }
@@ -98,25 +96,25 @@ class App extends React.Component {
       for (let j = 0; j <= duration; j++) {
         const d = element.start.clone().add(j, 'days');
         stackingData[d][computedLaneIndex] = element.id;
-      };
+      }
     });
 
     return {
       headingDates,
-      stackingData
+      stackingData,
     };
   }
 
   handleUpdateItem = (id, name, start, end) => {
-    let parsedItems = [...this.state.parsedItems];
-    const index = parsedItems.findIndex(x => x.id === id);
+    const parsedItems = [...this.state.parsedItems];
+    const index = parsedItems.findIndex((x) => x.id === id);
     parsedItems[index] = {
       ...parsedItems[index],
       name,
       start,
       end,
-    }
-    this.setState({parsedItems: parsedItems})
+    };
+    this.setState({ parsedItems });
   }
 
   render() {
@@ -126,41 +124,48 @@ class App extends React.Component {
     const { headingDates, stackingData } = this.computeTimeline();
 
     // Compute height for timeline
-    const maxStacked = Object.keys(Object.values(stackingData).reduce(function (prev, curr) {
-      return Object.keys(prev).length > Object.keys(curr).length ? prev : curr;
-    })).length;
+    const maxStacked = Object.keys(
+      Object.values(stackingData).reduce(
+        (prev, curr) => (
+          Object.keys(prev).length > Object.keys(curr).length ? prev : curr
+        ),
+      ),
+    ).length;
 
     return (
       <div>
         <div className="overflow-container">
-          <div className="wrapper" style={{ "height": (maxStacked * 38) + 35 }}>
+          <div className="wrapper" style={{ height: (maxStacked * 38) + 35 }}>
             <table className="headings">
               <thead>
                 <tr>
-                  {headingDates.map(heading => {
-                    return <TimelineHeading heading={heading} key={heading.valueOf()} />
-                  })}
+                  {
+                    headingDates.map(
+                      (heading) => <TimelineHeading heading={heading} key={heading.valueOf()} />,
+                    )
+                  }
                 </tr>
               </thead>
             </table>
             <div className="timeline-items">
-              {this.state.parsedItems.map(item => {
-                return (
-                  <TimelineItem
-                    {...item}
-                    key={item.id}
-                    offset={item.start.diff(headingDates[0], 'days')}
-                    top={Object.keys(stackingData[item.start]).find(key => stackingData[item.start][key] === item.id)}
-                    handleUpdateItem={this.handleUpdateItem}
-                  />
-                )
-              })}
+              {this.state.parsedItems.map((item) => (
+                <TimelineItem
+                  {...item}
+                  key={item.id}
+                  offset={item.start.diff(headingDates[0], 'days')}
+                  top={
+                    Object.keys(stackingData[item.start])
+                      .find((key) => stackingData[item.start][key] === item.id)
+                  }
+                  handleUpdateItem={this.handleUpdateItem}
+                />
+              ))}
             </div>
           </div>
         </div>
-      </div>);
+      </div>
+    );
   }
-};
-
+}
 
 render(<App />, document.getElementById('root'));

@@ -3,8 +3,20 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
-* {
+*, *:before, *:after {
   box-sizing: border-box;
+}
+input:focus {
+    outline: none;
+}
+
+input {
+  background: transparent;
+  color: #fff;
+  border: none;
+  border-bottom: 1px solid #fff;
+  padding: 0;
+  max-width: 100%;
 }
 
 .overflow-container {
@@ -38,7 +50,7 @@ body {
   color: #ffffff;
   border-radius: 5px;
   padding: 10px;
-
+  height: 38px;
   /* Ellipsize the text if it exceeds item width */
   overflow: hidden;
   text-overflow: ellipsis;
