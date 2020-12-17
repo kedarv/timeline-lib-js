@@ -38,6 +38,11 @@ body {
   color: #ffffff;
   border-radius: 5px;
   padding: 10px;
+
+  /* Ellipsize the text if it exceeds item width */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .timeline-items {

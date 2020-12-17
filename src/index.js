@@ -107,12 +107,16 @@ class App extends React.Component {
     };
   }
 
-  handleUpdateItemTime = (id, start, end) => {
-    // console.log(id, start, end);
-    // var someProperty = { ...this.state.parsedItems }
-    // someProperty[] = true;
-    // this.setState({ someProperty })
-    // this.setState
+  handleUpdateItem = (id, name, start, end) => {
+    let parsedItems = [...this.state.parsedItems];
+    const index = parsedItems.findIndex(x => x.id === id);
+    parsedItems[index] = {
+      ...parsedItems[index],
+      name,
+      start,
+      end,
+    }
+    this.setState({parsedItems: parsedItems})
   }
 
   render() {
@@ -147,7 +151,7 @@ class App extends React.Component {
                     key={item.id}
                     offset={item.start.diff(headingDates[0], 'days')}
                     top={Object.keys(stackingData[item.start]).find(key => stackingData[item.start][key] === item.id)}
-                    updateItemTime={this.handleUpdateItemTime}
+                    handleUpdateItem={this.handleUpdateItem}
                   />
                 )
               })}
