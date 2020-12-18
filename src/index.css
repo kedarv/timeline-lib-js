@@ -6,8 +6,9 @@ body {
 *, *:before, *:after {
   box-sizing: border-box;
 }
+
 input:focus {
-    outline: none;
+  outline: none;
 }
 
 input {
@@ -72,6 +73,7 @@ input {
 }
 
 /* resizing */
+
 .resize-control {
   cursor: ew-resize;
   width: 10px;
