@@ -3,7 +3,7 @@ import 'normalize.css';
 import moment from 'moment';
 import SortedSet from 'collections/sorted-set';
 import timelineItems from './timelineItems';
-import TimelineItem from './TimelineItem';
+import TimelineItem, { ITEM_HEIGHT } from './TimelineItem';
 import './index.css';
 
 function TimelineHeading({ heading }) {
@@ -14,6 +14,8 @@ function TimelineHeading({ heading }) {
     </th>
   );
 }
+
+const HEADING_HEIGHT = 35;
 
 class Timeline extends React.Component {
   constructor(props) {
@@ -139,7 +141,7 @@ class Timeline extends React.Component {
     return (
       <div>
         <div className="overflow-container" ref={this.parentElem}>
-          <div className="wrapper" style={{ height: (maxStacked * 38) + 35 }}>
+          <div className="wrapper" style={{ height: (maxStacked * ITEM_HEIGHT) + HEADING_HEIGHT }}>
             <table className="headings">
               <thead>
                 <tr>

@@ -5,13 +5,11 @@ const colorArray = [
   '#001f3f', '#0074D9', '#39CCCC', '#3D9970', '#2ECC40', '#FF851B',
   '#FF4136', '#85144b', '#F012BE', '#B10DC9', '#AAAAAA',
 ];
-
 const ITEM_WIDTH = 117;
-const ITEM_HEIGHT = 38;
+export const ITEM_HEIGHT = 38;
 
 function TimelineItemEditor({ name, submit }) {
   const [eventName, setEventName] = useState(name);
-
   const handleSubmit = (e) => {
     e.preventDefault();
     submit(eventName);
@@ -70,16 +68,19 @@ function TimelineItem({
         }
       } else if (e.target.dataset.direction === "left") {
         // New width is old width - current x position - old x position
-        // TODO: ....
+        // TODO: why does this work again?
         const computedWidth = width - (event.pageX - e.pageX);
+
+        // Make sure we don't go less than one day
         if (computedWidth > ITEM_WIDTH) {
           // Set item width
           itemRef.current.style.width = computedWidth + 'px';
+          mutated = true;
 
-          // Snap left to....
+          // Snap left to make it appear as though it grew left
+          // use scrollLeft in case we scrolled down the timeline
           const scrollPos = getParentRef().current.scrollLeft;
           itemRef.current.style.left = scrollPos + x + (event.pageX - e.pageX) - 22 + 'px';
-          mutated = true;
         }
       }
     }
@@ -89,25 +90,32 @@ function TimelineItem({
         // Snap width to nearest ITEM_WIDTH px
         itemRef.current.style.width = Math.round(itemRef.current.clientWidth / ITEM_WIDTH) * ITEM_WIDTH + 'px';
 
+        // Calculate event growth in days
         const pixelGrowth = (itemRef.current.clientWidth - width);
         const growthInDays = (Math.round(pixelGrowth / ITEM_WIDTH) * ITEM_WIDTH) / ITEM_WIDTH;
+
+        // propogate date change upwards to change the underlying data
         if (e.target.dataset.direction === "right") {
           if (growthInDays > 0) {
             propogateUpdates(undefined, undefined, end.add(growthInDays, 'days'));
           } else {
             propogateUpdates(undefined, undefined, end.subtract(Math.abs(growthInDays), 'days'));
           }
-        }
-        if (e.target.dataset.direction === "left") {
+        } else if (e.target.dataset.direction === "left") {
+          // Same idea as the mousemove handler, growth the left side to the snapped width
           const scrollPos = getParentRef().current.scrollLeft;
           const rounded = Math.round((event.pageX - e.pageX) / ITEM_WIDTH) * ITEM_WIDTH
           itemRef.current.style.left = scrollPos + x + rounded - 22 + 'px';
+          
+          // propogate date change upwards to change the underlying data
           if (growthInDays > 0) {
             propogateUpdates(undefined, start.subtract(growthInDays, 'days'));
           } else {
             propogateUpdates(undefined, start.add(Math.abs(growthInDays), 'days'));
           }
         }
+
+        // Reset z-index, mutation flag
         itemRef.current.style.zIndex = "auto";
         mutated = false;
       }
