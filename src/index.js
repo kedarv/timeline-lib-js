@@ -19,7 +19,7 @@ function TimelineHeading({ heading }) {
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { parsedItems: null };
+    this.state = { parsedItems: null, scrolledLeft: 0 };
   }
 
   componentDidMount() {
@@ -134,7 +134,7 @@ class App extends React.Component {
 
     return (
       <div>
-        <div className="overflow-container">
+        <div className="overflow-container" onScroll={(e) => {this.setState({'scrolledLeft': e.target.scrollLeft})}}>
           <div className="wrapper" style={{ height: (maxStacked * 38) + 35 }}>
             <table className="headings">
               <thead>
@@ -158,6 +158,7 @@ class App extends React.Component {
                       .find((key) => stackingData[item.start][key] === item.id)
                   }
                   handleUpdateItem={this.handleUpdateItem}
+                  scrollPos={this.state.scrolledLeft}
                 />
               ))}
             </div>

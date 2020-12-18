@@ -33,7 +33,7 @@ function TimelineItemEditor({ name, submit }) {
 }
 
 function TimelineItem({
-  name, end, start, id, offset, top, handleUpdateItem,
+  name, end, start, id, offset, top, handleUpdateItem, scrollPos
 }) {
   const diff = end.diff(start, 'days') + 1;
   const [isEditMode, setIsEditMode] = useState(false);
@@ -54,23 +54,36 @@ function TimelineItem({
     e.persist();
     const width = itemRef.current.clientWidth;
     const x = itemRef.current.getBoundingClientRect().left;
+    let mutated = false;
     onmousemove = (event) => {
-      
       if (e.target.dataset.direction === "right") {
-        const computedWidth = width + (event.pageX - e.pageX);
+        let computedWidth = width + (event.pageX - e.pageX);
 
         // Make sure we don't go less than one day
         if (computedWidth > 117) {
           itemRef.current.style.width = computedWidth + 'px';
+          mutated = true;
         }
-      } else if(e.target.dataset.direction === "left") {
+      } else if (e.target.dataset.direction === "left") {
         const computedWidth = width - (event.pageX - e.pageX);
-        console.log(x);
-        itemRef.current.style.width = computedWidth + 'px';
-        itemRef.current.style.left = x+(event.pageX - e.pageX) -22 + 'px';
+        if (computedWidth > 117) {
+          itemRef.current.style.width = computedWidth + 'px';
+          itemRef.current.style.left = scrollPos + x + (event.pageX - e.pageX) - 22 + 'px';
+          mutated = true;
+        }
       }
     }
     onmouseup = () => {
+      if (mutated) {
+        if (e.target.dataset.direction === "right") {
+          itemRef.current.style.width = Math.round(itemRef.current.clientWidth / 117) * 117 + 'px';
+        } else if (e.target.dataset.direction === "left") {
+          itemRef.current.style.width = Math.round(itemRef.current.clientWidth / 117) * 117 + 'px';
+          const rounded = Math.round((event.pageX - e.pageX) / 117) * 117
+          itemRef.current.style.left = scrollPos + x + rounded - 22 + 'px';
+        }
+        mutated = false;
+      }
       onmousemove = null;
     }
   }
@@ -95,69 +108,5 @@ function TimelineItem({
     </div>
   );
 }
-
-function makeResizableDiv(div) {
-  const element = document.querySelector(div);
-  const resizers = document.querySelectorAll(div + ' .resizer')
-  const minimum_size = 20;
-  let original_width = 0;
-  let original_height = 0;
-  let original_x = 0;
-  let original_y = 0;
-  let original_mouse_x = 0;
-  let original_mouse_y = 0;
-  for (let i = 0; i < resizers.length; i++) {
-    const currentResizer = resizers[i];
-    currentResizer.addEventListener('mousedown', function (e) {
-      e.preventDefault()
-      original_width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
-      original_height = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
-      original_x = element.getBoundingClientRect().left;
-      original_y = element.getBoundingClientRect().top;
-      original_mouse_x = e.pageX;
-      original_mouse_y = e.pageY;
-      window.addEventListener('mousemove', resize)
-      window.addEventListener('mouseup', stopResize)
-    })
-
-    function resize(e) {
-      if (currentResizer.classList.contains('right')) {
-        const width = original_width + (e.pageX - original_mouse_x);
-
-        if (width > minimum_size) {
-          element.style.width = width + 'px'
-        }
-      }
-      else if (currentResizer.classList.contains('left')) {
-        const width = original_width - (e.pageX - original_mouse_x)
-        if (width > minimum_size) {
-          element.style.width = width + 'px'
-          element.style.left = original_x + (e.pageX - original_mouse_x) + 'px'
-        }
-      }
-      else if (currentResizer.classList.contains('top')) {
-
-        const height = original_height - (e.pageY - original_mouse_y)
-        if (height > minimum_size) {
-          element.style.height = height + 'px'
-          element.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
-        }
-      }
-
-      else if (currentResizer.classList.contains('bottom')) {
-        const height = original_height + (e.pageY - original_mouse_y)
-        if (height > minimum_size) {
-          element.style.height = height + 'px'
-        }
-
-      }
-    }
-
-    function stopResize() {
-      window.removeEventListener('mousemove', resize)
-    }
-  }
-}
-
 
 export default TimelineItem;
