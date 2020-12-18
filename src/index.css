@@ -72,22 +72,17 @@ input {
 }
 
 /* resizing */
+.resize-control {
+  cursor: ew-resize;
+  width: 10px;
+  height: 100%;
+  position: absolute;
+}
+
 .resize-right {
   right: -5px;
-  bottom: 50%;
-  cursor: ew-resize;
-  transform: translate(0px, 5px);
-  width: 10px;
-  height: 10px;
-  position: absolute;
 }
 
 .resize-left {
   left: -5px;
-  bottom: 50%;
-  cursor: ew-resize;
-  transform: translate(0px, 5px);
-  width: 10px;
-  height: 10px;
-  position: absolute;
 }

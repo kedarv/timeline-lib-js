@@ -1,9 +1,4 @@
 import React, { useState, useRef } from 'react';
-import Tippy from '@tippyjs/react';
-import { followCursor } from 'tippy.js';
-import 'tippy.js/dist/tippy.css';
-import 'tippy.js/dist/backdrop.css';
-import 'tippy.js/animations/shift-away.css';
 import './index.css';
 
 const colorArray = [
@@ -97,7 +92,6 @@ function TimelineItem({
         const pixelGrowth = (itemRef.current.clientWidth - width);
         const growthInDays = (Math.round(pixelGrowth / ITEM_WIDTH) * ITEM_WIDTH) / ITEM_WIDTH;
         if (e.target.dataset.direction === "right") {
-          console.log("extend right " + growthInDays)
           if (growthInDays > 0) {
             propogateUpdates(undefined, undefined, end.add(growthInDays, 'days'));
           } else {
@@ -134,11 +128,11 @@ function TimelineItem({
         backgroundColor: colorArray[id % colorArray.length],
       }}
     >
-      <div class='resize-right' data-direction={"right"} onMouseDown={handleOnResize}></div>
-      <div class='resize-left' data-direction={"left"} onMouseDown={handleOnResize}></div>
+      <div className='resize-control resize-right' data-direction={"right"} onMouseDown={handleOnResize}></div>
+      <div className='resize-control resize-left' data-direction={"left"} onMouseDown={handleOnResize}></div>
 
       {isEditMode ? <TimelineItemEditor name={name} submit={propogateUpdates} />
-        : <span onClick={() => setIsEditMode(!isEditMode)}>{name}</span>}
+        : <span onClick={() => setIsEditMode(!isEditMode)} title={name}>{name}</span>}
     </div>
   );
 }
