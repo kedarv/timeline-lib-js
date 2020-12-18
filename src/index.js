@@ -20,10 +20,15 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = { parsedItems: null, scrolledLeft: 0 };
+    this.parentElem = React.createRef();
   }
 
   componentDidMount() {
     this.setState({ parsedItems: this.parseItems() });
+  }
+
+  getParentElem = () => {
+    return this.parentElem;
   }
 
   // Convert the input timestamps to moment objects and sort by start
@@ -134,7 +139,7 @@ class App extends React.Component {
 
     return (
       <div>
-        <div className="overflow-container" onScroll={(e) => {this.setState({'scrolledLeft': e.target.scrollLeft})}}>
+        <div className="overflow-container" ref={this.parentElem}>
           <div className="wrapper" style={{ height: (maxStacked * 38) + 35 }}>
             <table className="headings">
               <thead>
@@ -158,7 +163,7 @@ class App extends React.Component {
                       .find((key) => stackingData[item.start][key] === item.id)
                   }
                   handleUpdateItem={this.handleUpdateItem}
-                  scrollPos={this.state.scrolledLeft}
+                  getParentRef={this.getParentElem}
                 />
               ))}
             </div>

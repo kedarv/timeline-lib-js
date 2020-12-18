@@ -11,6 +11,9 @@ const colorArray = [
   '#FF4136', '#85144b', '#F012BE', '#B10DC9', '#AAAAAA',
 ];
 
+const ITEM_WIDTH = 117;
+const ITEM_HEIGHT = 38;
+
 function TimelineItemEditor({ name, submit }) {
   const [eventName, setEventName] = useState(name);
 
@@ -33,11 +36,11 @@ function TimelineItemEditor({ name, submit }) {
 }
 
 function TimelineItem({
-  name, end, start, id, offset, top, handleUpdateItem, scrollPos
+  name, end, start, id, offset, top, handleUpdateItem, getParentRef
 }) {
-  const diff = end.diff(start, 'days') + 1;
   const [isEditMode, setIsEditMode] = useState(false);
   const itemRef = useRef(null);
+  const diff = end.diff(start, 'days') + 1;
 
   const propogateUpdates = (updateName = name, updateStart = start, updateEnd = end) => {
     setIsEditMode(false);
@@ -52,51 +55,64 @@ function TimelineItem({
   const handleOnResize = (e) => {
     e.preventDefault();
     e.persist();
+
+    // width and x coord at the time of beginning resize
     const width = itemRef.current.clientWidth;
     const x = itemRef.current.getBoundingClientRect().left;
     let mutated = false;
+
     onmousemove = (event) => {
       if (e.target.dataset.direction === "right") {
+        // New width is old width + current x position - old x position
         let computedWidth = width + (event.pageX - e.pageX);
 
         // Make sure we don't go less than one day
-        if (computedWidth > 117) {
+        if (computedWidth > ITEM_WIDTH) {
+          // Set item width
           itemRef.current.style.width = computedWidth + 'px';
           mutated = true;
         }
       } else if (e.target.dataset.direction === "left") {
+        // New width is old width - current x position - old x position
+        // TODO: ....
         const computedWidth = width - (event.pageX - e.pageX);
-        if (computedWidth > 117) {
+        if (computedWidth > ITEM_WIDTH) {
+          // Set item width
           itemRef.current.style.width = computedWidth + 'px';
+
+          // Snap left to....
+          const scrollPos = getParentRef().current.scrollLeft;
           itemRef.current.style.left = scrollPos + x + (event.pageX - e.pageX) - 22 + 'px';
           mutated = true;
         }
       }
     }
+
     onmouseup = () => {
       if (mutated) {
-        if (e.target.dataset.direction === "right") {
-          itemRef.current.style.width = Math.round(itemRef.current.clientWidth / 117) * 117 + 'px';
-        } else if (e.target.dataset.direction === "left") {
-          itemRef.current.style.width = Math.round(itemRef.current.clientWidth / 117) * 117 + 'px';
-          const rounded = Math.round((event.pageX - e.pageX) / 117) * 117
+        // Snap width to nearest ITEM_WIDTH px
+        itemRef.current.style.width = Math.round(itemRef.current.clientWidth / ITEM_WIDTH) * ITEM_WIDTH + 'px';
+        if (e.target.dataset.direction === "left") {
+          const scrollPos = getParentRef().current.scrollLeft;
+          const rounded = Math.round((event.pageX - e.pageX) / ITEM_WIDTH) * ITEM_WIDTH
           itemRef.current.style.left = scrollPos + x + rounded - 22 + 'px';
         }
         mutated = false;
       }
+
+      // clear event listener
       onmousemove = null;
     }
   }
 
   return (
-
     <div
       className="timeline-item"
       ref={itemRef}
       style={{
-        left: offset * 117,
-        width: diff * 117,
-        top: top * 38,
+        left: offset * ITEM_WIDTH,
+        width: diff * ITEM_WIDTH,
+        top: top * ITEM_HEIGHT,
         backgroundColor: colorArray[id % colorArray.length],
       }}
     >
