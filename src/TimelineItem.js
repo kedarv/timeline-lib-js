@@ -60,6 +60,7 @@ function TimelineItem({
     const width = itemRef.current.clientWidth;
     const x = itemRef.current.getBoundingClientRect().left;
     let mutated = false;
+    itemRef.current.style.zIndex = 1;
 
     onmousemove = (event) => {
       if (e.target.dataset.direction === "right") {
@@ -92,11 +93,28 @@ function TimelineItem({
       if (mutated) {
         // Snap width to nearest ITEM_WIDTH px
         itemRef.current.style.width = Math.round(itemRef.current.clientWidth / ITEM_WIDTH) * ITEM_WIDTH + 'px';
+
+        const pixelGrowth = (itemRef.current.clientWidth - width);
+        const growthInDays = (Math.round(pixelGrowth / ITEM_WIDTH) * ITEM_WIDTH) / ITEM_WIDTH;
+        if (e.target.dataset.direction === "right") {
+          console.log("extend right " + growthInDays)
+          if (growthInDays > 0) {
+            propogateUpdates(undefined, undefined, end.add(growthInDays, 'days'));
+          } else {
+            propogateUpdates(undefined, undefined, end.subtract(Math.abs(growthInDays), 'days'));
+          }
+        }
         if (e.target.dataset.direction === "left") {
           const scrollPos = getParentRef().current.scrollLeft;
           const rounded = Math.round((event.pageX - e.pageX) / ITEM_WIDTH) * ITEM_WIDTH
           itemRef.current.style.left = scrollPos + x + rounded - 22 + 'px';
+          if (growthInDays > 0) {
+            propogateUpdates(undefined, start.subtract(growthInDays, 'days'));
+          } else {
+            propogateUpdates(undefined, start.add(Math.abs(growthInDays), 'days'));
+          }
         }
+        itemRef.current.style.zIndex = "auto";
         mutated = false;
       }
 
