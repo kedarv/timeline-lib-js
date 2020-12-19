@@ -47,10 +47,12 @@ class Timeline extends React.Component {
 
   // Calculate bounds of the timeline
   getGlobalBounds = () => {
-    // minimum is guaranteed to be the first items' start
-    const minDate = this.state.parsedItems[0].start;
+    // search for the minimum date (ie. the smallest start)
+    const minDate = this.state.parsedItems.reduce(
+      (prev, curr) => (prev.start.valueOf() < curr.start.valueOf() ? prev : curr),
+    ).start;
 
-    // maximum (ie. the end date) could occur anywhere, so let's search
+    // search for the maximum date (ie. the largest end)
     const maxDate = this.state.parsedItems.reduce(
       (prev, curr) => (prev.end.valueOf() > curr.end.valueOf() ? prev : curr),
     ).end;
