@@ -25,11 +25,9 @@ class Timeline extends React.Component {
   }
 
   componentDidMount() {
+    // only parseItems on mount since this could be expensive
+    // (imagine underlying network calls, large datasets)
     this.setState({ parsedItems: this.parseItems() });
-  }
-
-  getParentElem = () => {
-    return this.parentElem;
   }
 
   // Convert the input timestamps to moment objects and sort by start
@@ -47,12 +45,12 @@ class Timeline extends React.Component {
 
   // Calculate bounds of the timeline
   getGlobalBounds = () => {
-    // search for the minimum date (ie. the smallest start)
+    // search for the minimum date (the smallest start)
     const minDate = this.state.parsedItems.reduce(
       (prev, curr) => (prev.start.valueOf() < curr.start.valueOf() ? prev : curr),
     ).start;
 
-    // search for the maximum date (ie. the largest end)
+    // search for the maximum date (the largest end)
     const maxDate = this.state.parsedItems.reduce(
       (prev, curr) => (prev.end.valueOf() > curr.end.valueOf() ? prev : curr),
     ).end;
@@ -66,8 +64,8 @@ class Timeline extends React.Component {
   computeTimeline = () => {
     const { minDate, maxDate } = this.getGlobalBounds();
 
-    // Initialize stackingData with range of days to hold lane positioning
-    // Initialize date range as array for presentation
+    // Initialize stackingData as [day]{index: eventID} with range of days to hold lane positioning
+    // Initialize date range as array for easier presentation
     const stackingData = {};
     const headingDates = [];
     for (let i = 0; i <= maxDate.diff(minDate, 'days'); i++) {
@@ -93,14 +91,15 @@ class Timeline extends React.Component {
       // Find the lowest unused lane index
       let computedLaneIndex = 0;
       for (let k = 0; k < occupiedLanes.length + 1; k++) {
-        // If the index is not occupied then claim it
+        // note we loop length + 1, which could result in k undefined
+        // this happens if all lanes are occupied, in which case we create a new lane 
         if (occupiedLanes.get(k) === undefined || k !== occupiedLanes.get(k)) {
           computedLaneIndex = k;
           break;
         }
       }
 
-      // Fill stackingData for duration with computed stack index
+      // Fill stackingData for duration with "claimed" index
       for (let j = 0; j <= duration; j++) {
         const d = element.start.clone().add(j, 'days');
         stackingData[d][computedLaneIndex] = element.id;
@@ -125,25 +124,30 @@ class Timeline extends React.Component {
     this.setState({ parsedItems });
   }
 
+  getParentElem = () => {
+    return this.parentElem;
+  }
+
   render() {
     if (this.state.parsedItems === null) {
       return null;
     }
     const { headingDates, stackingData } = this.computeTimeline();
 
-    // Compute height for timeline
-    const maxStacked = Object.keys(
+    // Maximum stacked lanes used to compute height for the timeline
+    // Multiply by the height of each item, and add the heading table height
+    const timelineHeight = Object.keys(
       Object.values(stackingData).reduce(
         (prev, curr) => (
           Object.keys(prev).length > Object.keys(curr).length ? prev : curr
         ),
       ),
-    ).length;
+    ).length * ITEM_HEIGHT + HEADING_HEIGHT;
 
     return (
-      <div>
+      <>
         <div className="overflow-container" ref={this.parentElem}>
-          <div className="wrapper" style={{ height: (maxStacked * ITEM_HEIGHT) + HEADING_HEIGHT }}>
+          <div className="wrapper" style={{ height: timelineHeight }}>
             <table className="headings">
               <thead>
                 <tr>
@@ -172,7 +176,7 @@ class Timeline extends React.Component {
             </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 }
