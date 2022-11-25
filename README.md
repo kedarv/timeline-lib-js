@@ -1,0 +1,1 @@
+Homebrewed version of the timeline component, inspired by https://fullcalendar.io

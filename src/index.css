@@ -1,0 +1,90 @@
+body {
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+input:focus {
+  outline: none;
+}
+
+input {
+  background: transparent;
+  color: #fff;
+  border: none;
+  border-bottom: 1px solid #fff;
+  padding: 0;
+  max-width: 100%;
+}
+
+.overflow-container {
+  border: 2px solid rgba(0, 0, 0, .125);
+  border-radius: 5px;
+  /* Let the inner table scroll within */
+  overflow-x: auto;
+}
+
+.headings {
+  border-collapse: collapse;
+  border-bottom: 1px solid rgba(0, 0, 0, .125);
+}
+
+.wrapper {
+  position: relative;
+  display: inline-block;
+  width: auto;
+}
+
+.timeline-day-heading {
+  padding: 8px;
+  color: rgb(4, 4, 4);
+  text-align: center;
+  border-right: 1px solid rgba(0, 0, 0, .125);
+}
+
+.timeline-item {
+  position: absolute;
+  display: block;
+  color: #ffffff;
+  border-radius: 5px;
+  padding: 10px;
+  height: 38px;
+  /* Ellipsize the text if it exceeds item width */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline-items {
+  position: absolute;
+}
+
+/*
+  Small hack to give the table headers some room instead 
+  of all the headings getting stuffed into the parent width
+*/
+
+.spacer {
+  width: 100px;
+  display: block;
+}
+
+/* resizing */
+
+.resize-control {
+  cursor: ew-resize;
+  width: 10px;
+  height: 100%;
+  position: absolute;
+}
+
+.resize-right {
+  right: -5px;
+}
+
+.resize-left {
+  left: -5px;
+}
