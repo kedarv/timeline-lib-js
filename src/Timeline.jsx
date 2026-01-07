@@ -1,7 +1,6 @@
 import React from 'react';
 import 'normalize.css';
 import moment from 'moment';
-import SortedSet from 'collections/sorted-set';
 import timelineItems from './timelineItems';
 import TimelineItem, { ITEM_HEIGHT } from './TimelineItem';
 import './index.css';
@@ -76,7 +75,7 @@ class Timeline extends React.Component {
 
     // Go through each event and populate stackingData
     this.state.parsedItems.forEach((element) => {
-      const occupiedLanes = new SortedSet();
+      const occupiedLanes = new Set();
       const duration = element.end.diff(element.start, 'days');
 
       // Go through existing stackingData and push all occupied lanes
@@ -84,16 +83,18 @@ class Timeline extends React.Component {
       for (let j = 0; j <= duration; j++) {
         const d = element.start.clone().add(j, 'days');
         for (const [key] of Object.entries(stackingData[d])) {
-          occupiedLanes.push(Number(key));
+          occupiedLanes.add(Number(key));
         }
       }
 
       // Find the lowest unused lane index
+      // Convert Set to sorted array
+      const sortedOccupiedLanes = Array.from(occupiedLanes).sort((a, b) => a - b);
       let computedLaneIndex = 0;
-      for (let k = 0; k < occupiedLanes.length + 1; k++) {
+      for (let k = 0; k < sortedOccupiedLanes.length + 1; k++) {
         // note we loop length + 1, which could result in k undefined
         // this happens if all lanes are occupied, in which case we create a new lane 
-        if (occupiedLanes.get(k) === undefined || k !== occupiedLanes.get(k)) {
+        if (sortedOccupiedLanes[k] === undefined || k !== sortedOccupiedLanes[k]) {
           computedLaneIndex = k;
           break;
         }
